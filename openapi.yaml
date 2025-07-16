@@ -1,6 +1,9 @@
 openapi: 3.0.3
 info:
   title: GESTION DE PROJET - BUG
+  version: 1.0.0
+
+paths:
   /auth/register:
     post:
       summary: Créer un nouveau compte utilisateur
@@ -123,25 +126,38 @@ info:
       parameters:
         - in: query
           name: projectId
-          schema: { type: string }
+          schema:
+            type: string
         - in: query
           name: type
-          schema: { type: string, enum: ['log','error','warning','info'] }
+          schema:
+            type: string
+            enum: ['log', 'error', 'warning', 'info']
         - in: query
           name: status
-          schema: { type: string, enum: ['en cours','terminée','supprimée'] }
+          schema:
+            type: string
+            enum: ['en cours', 'terminée', 'supprimée']
         - in: query
           name: from
-          schema: { type: string, format: date }
+          schema:
+            type: string
+            format: date
         - in: query
           name: to
-          schema: { type: string, format: date }
+          schema:
+            type: string
+            format: date
         - in: query
           name: page
-          schema: { type: integer, default: 1 }
+          schema:
+            type: integer
+            default: 1
         - in: query
           name: limit
-          schema: { type: integer, default: 10 }
+          schema:
+            type: integer
+            default: 10
       responses:
         '200':
           description: Liste filtrée de bugs
@@ -232,11 +248,11 @@ components:
           example: Impossible de se connecter
         type:
           type: string
-          enum: ['log','error','warning','info']
+          enum: ['log', 'error', 'warning', 'info']
           example: error
         status:
           type: string
-          enum: ['en cours','terminée','supprimée']
+          enum: ['en cours', 'terminée', 'supprimée']
           example: en cours
 
     Bug:
