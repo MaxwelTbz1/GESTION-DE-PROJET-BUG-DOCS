@@ -19,7 +19,7 @@ S’inscrire ou se connecter : Appelez l’un des endpoints :
 
 POST /api/auth/register
 
-POST /auth/login
+POST /api/auth/login
 
 👉 En cas de succès, un accessToken est retourné dans le corps de la réponse.
 

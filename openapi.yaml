@@ -23,7 +23,7 @@ paths:
         '400':
           description: Email déjà utilisé
 
-  /auth/login:
+  /api/auth/login:
     post:
       summary: Connexion d’un utilisateur existant
       requestBody:
@@ -42,7 +42,7 @@ paths:
         '401':
           description: Identifiants invalides
 
-  /auth/me:
+  /api/auth/me:
     get:
       summary: Récupère les informations du profil
       security:
@@ -57,7 +57,7 @@ paths:
         '401':
           description: Non autorisé
 
-  /projects:
+  /api/projects:
     post:
       summary: Créer un nouveau projet
       security:
@@ -91,7 +91,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Project'
 
-  /bugs/{projectId}:
+  /api/bugs/{projectId}:
     post:
       summary: Créer un bug pour un projet donné
       security:
@@ -118,7 +118,7 @@ paths:
         '403':
           description: Accès interdit au projet
 
-  /bugs/registry/all:
+  /api/bugs/registry/all:
     get:
       summary: Obtenir tous les bugs de l’utilisateur, avec filtres et pagination
       security:
