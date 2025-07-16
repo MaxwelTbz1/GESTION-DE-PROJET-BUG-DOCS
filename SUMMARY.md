@@ -9,7 +9,16 @@
 * [Bugs](guides/bugs.md)
 * [Error Handling](guides/error-handling.md)
 
-
 ## Reference
 
-* [OpenAPI Specification](reference/openapi.yaml)
+* [OpenAPI Specification](reference/openapi-specification/README.md)
+  * ```yaml
+    type: builtin:openapi
+    props:
+      models: true
+    dependencies:
+      spec:
+        ref:
+          kind: openapi
+          spec: tbz-dev-web-api
+    ```
