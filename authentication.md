@@ -37,5 +37,5 @@ Si vous recevez une erreur 401 Unauthorized, cela signifie que :
   ou 
 - invalide.
 
-➡️ L’utilisateur doit se reconnecter via /auth/login.
+➡️ L’utilisateur doit se reconnecter via /api/auth/login.
 
