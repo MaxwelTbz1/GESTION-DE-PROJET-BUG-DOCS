@@ -1,0 +1,258 @@
+openapi: 3.0.3
+info:
+  title: GESTION DE PROJET - BUG
+  /auth/register:
+    post:
+      summary: Créer un nouveau compte utilisateur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCredentials'
+      responses:
+        '201':
+          description: Compte créé, JWT retourné
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        '400':
+          description: Email déjà utilisé
+
+  /auth/login:
+    post:
+      summary: Connexion d’un utilisateur existant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCredentials'
+      responses:
+        '200':
+          description: Connexion réussie, JWT retourné
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        '401':
+          description: Identifiants invalides
+
+  /auth/me:
+    get:
+      summary: Récupère les informations du profil
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profil utilisateur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Non autorisé
+
+  /projects:
+    post:
+      summary: Créer un nouveau projet
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectInput'
+      responses:
+        '201':
+          description: Projet créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '403':
+          description: Limite de projets atteinte
+    get:
+      summary: Liste des projets de l’utilisateur
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Liste des projets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+
+  /bugs/{projectId}:
+    post:
+      summary: Créer un bug pour un projet donné
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BugInput'
+      responses:
+        '201':
+          description: Bug créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bug'
+        '403':
+          description: Accès interdit au projet
+
+  /bugs/registry/all:
+    get:
+      summary: Obtenir tous les bugs de l’utilisateur, avec filtres et pagination
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: projectId
+          schema: { type: string }
+        - in: query
+          name: type
+          schema: { type: string, enum: ['log','error','warning','info'] }
+        - in: query
+          name: status
+          schema: { type: string, enum: ['en cours','terminée','supprimée'] }
+        - in: query
+          name: from
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          schema: { type: string, format: date }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: Liste filtrée de bugs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bug'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserCredentials:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: motdepasse123
+
+    AuthToken:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1Ni...
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        email:
+          type: string
+
+    ProjectInput:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          example: Mon super projet
+        type:
+          type: string
+          example: mobile
+
+    Project:
+      allOf:
+        - $ref: '#/components/schemas/ProjectInput'
+        - type: object
+          properties:
+            _id:
+              type: string
+            userId:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    BugInput:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          example: Erreur de login
+        description:
+          type: string
+          example: Impossible de se connecter
+        type:
+          type: string
+          enum: ['log','error','warning','info']
+          example: error
+        status:
+          type: string
+          enum: ['en cours','terminée','supprimée']
+          example: en cours
+
+    Bug:
+      allOf:
+        - $ref: '#/components/schemas/BugInput'
+        - type: object
+          properties:
+            _id:
+              type: string
+            projectId:
+              type: string
+            userId:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
