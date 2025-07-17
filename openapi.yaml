@@ -4,7 +4,7 @@ info:
   version: 1.0.0
 
 paths:
-  /auth/register:
+  api/auth/register:
     post:
       summary: Créer un nouveau compte utilisateur
       requestBody:
