@@ -17,7 +17,7 @@ Obtention : Vous recevez un jeton lors d’un enregistrement ou d’une connexio
 🔁 Flux d’authentification
 S’inscrire ou se connecter : Appelez l’un des endpoints :
 
-POST api/auth/register
+POST /api/auth/register
 
 POST /auth/login
 
