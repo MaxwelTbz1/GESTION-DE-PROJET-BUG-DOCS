@@ -15,7 +15,7 @@ paths:
               $ref: '#/components/schemas/UserCredentials'
       responses:
         '201':
-          description: Compte créé, JWT retourné
+          description: Compte créé avec succès
           content:
             application/json:
               schema:
