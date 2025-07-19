@@ -12,15 +12,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCredentials'
+              $ref: "#/components/schemas/UserCredentials"
       responses:
-        '201':
+        "201":
           description: Compte créé avec succès
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthToken'
-        '400':
+                $ref: "#/components/schemas/UserCredentials"
+        "400":
           description: Email déjà utilisé
 
   /api/auth/login:
@@ -31,15 +31,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCredentials'
+              $ref: "#/components/schemas/UserCredentials"
       responses:
-        '200':
+        "200":
           description: Connexion réussie, JWT retourné
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthToken'
-        '401':
+                $ref: "#/components/schemas/AuthToken"
+        "401":
           description: Identifiants invalides
 
   /api/auth/me:
@@ -48,13 +48,13 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Profil utilisateur
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '401':
+                $ref: "#/components/schemas/User"
+        "401":
           description: Non autorisé
 
   /api/projects:
@@ -67,29 +67,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProjectInput'
+              $ref: "#/components/schemas/ProjectInput"
       responses:
-        '201':
+        "201":
           description: Projet créé
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Project'
-        '403':
+                $ref: "#/components/schemas/Project"
+        "403":
           description: Limite de projets atteinte
     get:
       summary: Liste des projets de l’utilisateur
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Liste des projets
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Project'
+                  $ref: "#/components/schemas/Project"
 
   /api/bugs/{projectId}:
     post:
@@ -107,15 +107,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BugInput'
+              $ref: "#/components/schemas/BugInput"
       responses:
-        '201':
+        "201":
           description: Bug créé
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Bug'
-        '403':
+                $ref: "#/components/schemas/Bug"
+        "403":
           description: Accès interdit au projet
 
   /api/bugs/registry/all:
@@ -132,12 +132,12 @@ paths:
           name: type
           schema:
             type: string
-            enum: ['log', 'error', 'warning', 'info']
+            enum: ["log", "error", "warning", "info"]
         - in: query
           name: status
           schema:
             type: string
-            enum: ['en cours', 'terminée', 'supprimée']
+            enum: ["en cours", "terminée", "supprimée"]
         - in: query
           name: from
           schema:
@@ -159,14 +159,61 @@ paths:
             type: integer
             default: 10
       responses:
-        '200':
+        "200":
           description: Liste filtrée de bugs
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Bug'
+                  $ref: "#/components/schemas/Bug"
+
+  /api/bugs/{bugId}:
+    delete:
+      summary: Effacer un bug pour un projet donné
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: bugId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BugDelete"
+      responses:
+        "201":
+          description: Bug delete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bug"
+        "403":
+          description: Accès interdit au bug
+
+  /api/bugs/registry/stats:
+    get:
+      summary: Statitisque Bug
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: projectId
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Statitisques des bugs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bug"
 
 components:
   securitySchemes:
@@ -221,7 +268,7 @@ components:
 
     Project:
       allOf:
-        - $ref: '#/components/schemas/ProjectInput'
+        - $ref: "#/components/schemas/ProjectInput"
         - type: object
           properties:
             _id:
@@ -248,16 +295,16 @@ components:
           example: Impossible de se connecter
         type:
           type: string
-          enum: ['log', 'error', 'warning', 'info']
+          enum: ["log", "error", "warning", "info"]
           example: error
         status:
           type: string
-          enum: ['en cours', 'terminée', 'supprimée']
+          enum: ["en cours", "terminée", "supprimée"]
           example: en cours
 
     Bug:
       allOf:
-        - $ref: '#/components/schemas/BugInput'
+        - $ref: "#/components/schemas/BugInput"
         - type: object
           properties:
             _id:

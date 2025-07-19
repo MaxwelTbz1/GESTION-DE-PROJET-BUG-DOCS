@@ -44,4 +44,17 @@
 
 - **401 Unauthorized :** Token manquant ou invalide
 
+## Delete Bug 
+
+- **Endpoint:** `DELETE /api/bugs/:bugId`
+- **Authentification requise:** Oui
+- **Paramètres d’URL:** `bugId` — ID du bug à supprimer
+- **Payload:**
+
+- Réponse: Bug supprimer
+
+## Statistique Bug
+
+- **Endpoint:** `GET /api/bugs/:registry/stats`
+- **Authentification requise:** Oui
 
