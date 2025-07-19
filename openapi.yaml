@@ -179,21 +179,11 @@ paths:
           required: true
           schema:
             type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/BugDelete"
       responses:
-        "201":
-          description: Bug delete
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Bug"
+        "204":
+          description: Bug supprimé avec succès 
         "403":
-          description: Accès interdit au bug
+          description: Accès refusé au bug
 
   /api/bugs/registry/stats:
     get:
