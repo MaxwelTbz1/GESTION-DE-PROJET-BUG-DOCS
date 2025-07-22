@@ -2,59 +2,83 @@
 
 ## Créer un bug
 
-- **Endpoint:** `POST /api/bugs/:projectId`
-- **Authentification requise:** Oui
-- **Paramètres d’URL:** `projectId` — ID du projet lié
-- **Payload:**
+Méthode : POST
 
-```json
+URL : /api/bugs/:projectId
+
+Authentification requise : ✅ Oui
+
+Paramètre d'URL :
+
+projectId (string) — ID du projet concerné
+
+📨 Payload (body JSON)
+json
+
 {
-  "title": "Titre du bug",
-  "description": "Description détaillée",
-  "type": "log | error | warning | info",
-  "status": "en cours | terminée | supprimée"
+"title": "Titre du bug",
+"description": "Description détaillée",
+"type": "log | error | warning | info",
+"status": "en cours | terminée | supprimée"
+}
+✅ Réponse :
+
+Un objet bug créé avec son ID, la date de création, etc.
+
+## Lister les bugs (filtrés et paginés)
+
+Méthode : GET
+
+URL : /api/bugs
+
+Authentification requise : ✅ Oui
+
+Query parameters (facultatifs) :
+
+Paramètre Description
+projectId Filtrer les bugs d’un projet
+type log, error, warning, info
+status en cours, terminée, supprimée
+from Date de début (format : YYYY-MM-DD)
+to Date de fin (format : YYYY-MM-DD)
+offset Index de départ (pagination, par défaut : 0)
+limit Nombre d’éléments (pagination, par défaut : 10)
+
+✅ Réponse :
+json
+{
+"total": 42,
+"limit": 10,
+"offset": 0,
+"bugs": [ ... ]
 }
 
-- Réponse: Objet bug créé
+## Supprimer un bug
+Méthode : DELETE
 
-## Lister les bugs
+URL : /api/bugs/:bugId
 
-- **Endpoint:** `GET /api/bugs/registry/all`
+Authentification requise : ✅ Oui
 
-- **Authentification requise:** Oui
+Paramètre d'URL :
 
-- **Query Params (facultatifs):**
+bugId (string) — ID du bug à supprimer
 
-| Param     | Description                 |
-| --------- | --------------------------- |
-| projectId | Filtrer par projet          |
-| type      | Filtrer par type de bug     |
-| status    | Filtrer par statut          |
-| from      | Date début (YYYY-MM-DD)     |
-| to        | Date fin (YYYY-MM-DD)       |
-| page      | Numéro de page (pagination) |
-| limit     | Nombre d’éléments par page  |
+✅ Réponse :
 
+json
+{
+"message": "Bug supprimé avec succès"
+}
 
-- Réponse: Liste paginée de bugs
+### Erreurs courantes
 
-**Erreurs courantes**
+Code Signification
 
-- **403 Forbidden :** Accès interdit au projet
+401 Unauthorized Token manquant ou invalide
 
-- **401 Unauthorized :** Token manquant ou invalide
+403 Forbidden Accès refusé (projet non appartenant à l'utilisateur)
 
-## Delete Bug 
+404 Not Found Bug ou projet introuvable
 
-- **Endpoint:** `DELETE /api/bugs/:bugId`
-- **Authentification requise:** Oui
-- **Paramètres d’URL:** `bugId` — ID du bug à supprimer
-- **Payload:**
-
-- Réponse: Bug supprimer
-
-## Statistique Bug
-
-- **Endpoint:** `GET /api/bugs/:registry/stats`
-- **Authentification requise:** Oui
-
+500 Internal Server Error Erreur serveur inattendue

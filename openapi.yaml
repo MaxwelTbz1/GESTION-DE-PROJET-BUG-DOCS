@@ -3,63 +3,89 @@ info:
   title: GESTION DE PROJET - BUG
   version: 1.0.0
 
+servers:
+  - url: http://localhost:5000
+  - https://gestion-de-projet-bug.onrender.com
+
+tags:
+  - name: Auth
+  - name: Projects
+  - name: Bugs
+
 paths:
+
+  ########################
+  # 🔐 AUTHENTIFICATION #
+  ########################
+
   /api/auth/register:
     post:
-      summary: Créer un nouveau compte utilisateur
+      tags: [Auth]
+      summary: Inscription d'un utilisateur
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserCredentials"
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
       responses:
         "201":
-          description: Compte créé avec succès
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserCredentials"
+          description: Utilisateur inscrit
         "400":
           description: Email déjà utilisé
+        "500":
+          description: Erreur serveur
 
   /api/auth/login:
     post:
-      summary: Connexion d’un utilisateur existant
+      tags: [Auth]
+      summary: Connexion d'un utilisateur
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserCredentials"
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
       responses:
         "200":
-          description: Connexion réussie, JWT retourné
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AuthToken"
+          description: Connexion réussie
         "401":
           description: Identifiants invalides
+        "500":
+          description: Erreur serveur
 
   /api/auth/me:
     get:
-      summary: Récupère les informations du profil
+      tags: [Auth]
+      summary: Récupérer l'utilisateur courant
       security:
         - bearerAuth: []
       responses:
         "200":
-          description: Profil utilisateur
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
+          description: Données utilisateur
         "401":
           description: Non autorisé
 
+  ########################
+  # 📁 PROJETS           #
+  ########################
+
   /api/projects:
     post:
-      summary: Créer un nouveau projet
+      tags: [Projects]
+      summary: Créer un projet
       security:
         - bearerAuth: []
       requestBody:
@@ -67,18 +93,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ProjectInput"
+              type: object
+              required: [name, type]
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
       responses:
         "201":
           description: Projet créé
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Project"
         "403":
-          description: Limite de projets atteinte
+          description: Limite atteinte
+        "500":
+          description: Erreur serveur
+
     get:
-      summary: Liste des projets de l’utilisateur
+      tags: [Projects]
+      summary: Obtenir tous les projets de l'utilisateur
       security:
         - bearerAuth: []
       responses:
@@ -90,9 +122,50 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Project"
+        "401":
+          description: Non autorisé
+        "500":
+          description: Erreur serveur
+
+  /api/projects/summary:
+    get:
+      tags: [Projects]
+      summary: Obtenir les détails complet des projets et leurs bugs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: projectId
+          in: query
+          schema:
+            type: string
+        - name: withBugs
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Résumé projet+bugs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Project"
+                  bugs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Bug"
+
+  ######################
+  # 🐛 BUGS             #
+  ######################
 
   /api/bugs/{projectId}:
     post:
+      tags: [Bugs]
       summary: Créer un bug pour un projet donné
       security:
         - bearerAuth: []
@@ -117,60 +190,77 @@ paths:
                 $ref: "#/components/schemas/Bug"
         "403":
           description: Accès interdit au projet
+        "404":
+          description: Projet non trouvé
+        "500":
+          description: Erreur serveur
 
-  /api/bugs/registry/all:
+  /api/bugs:
     get:
-      summary: Obtenir tous les bugs de l’utilisateur, avec filtres et pagination
+      tags: [Bugs]
+      summary: Obtenir tous les bugs (filtres, pagination)
       security:
         - bearerAuth: []
       parameters:
-        - in: query
-          name: projectId
+        - name: projectId
+          in: query
           schema:
             type: string
-        - in: query
-          name: type
+        - name: type
+          in: query
           schema:
             type: string
             enum: ["log", "error", "warning", "info"]
-        - in: query
-          name: status
+        - name: status
+          in: query
           schema:
             type: string
             enum: ["en cours", "terminée", "supprimée"]
-        - in: query
-          name: from
+        - name: from
+          in: query
           schema:
             type: string
             format: date
-        - in: query
-          name: to
+        - name: to
+          in: query
           schema:
             type: string
             format: date
-        - in: query
-          name: page
+        - name: offset
+          in: query
           schema:
             type: integer
-            default: 1
-        - in: query
-          name: limit
+            default: 0
+        - name: limit
+          in: query
           schema:
             type: integer
             default: 10
       responses:
         "200":
-          description: Liste filtrée de bugs
+          description: Liste des bugs filtrée
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Bug"
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+                  bugs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Bug"
+        "500":
+          description: Erreur serveur
 
   /api/bugs/{bugId}:
-    delete:
-      summary: Effacer un bug pour un projet donné
+    get:
+      tags: [Bugs]
+      summary: Détails complets d’un bug (avec projet et utilisateur)
       security:
         - bearerAuth: []
       parameters:
@@ -180,30 +270,55 @@ paths:
           schema:
             type: string
       responses:
-        "204":
-          description: Bug supprimé avec succès 
+        "200":
+          description: Détail complet
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bug:
+                    $ref: "#/components/schemas/Bug"
+                  project:
+                    $ref: "#/components/schemas/Project"
+                  user:
+                    $ref: "#/components/schemas/User"
         "403":
-          description: Accès refusé au bug
+          description: Non autorisé
+        "404":
+          description: Bug ou projet non trouvé
+        "500":
+          description: Erreur serveur
 
-  /api/bugs/registry/stats:
-    get:
-      summary: Statitisque Bug
+    delete:
+      tags: [Bugs]
+      summary: Supprimer un bug existant
       security:
         - bearerAuth: []
       parameters:
-        - in: query
-          name: projectId
+        - name: bugId
+          in: path
+          required: true
           schema:
             type: string
       responses:
         "200":
-          description: Statitisques des bugs
+          description: Bug supprimé avec succès
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Bug"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Bug supprimé avec succès
+        "403":
+          description: Non autorisé
+        "404":
+          description: Bug non trouvé
+        "500":
+          description: Erreur serveur
+
 
 components:
   securitySchemes:
@@ -213,65 +328,6 @@ components:
       bearerFormat: JWT
 
   schemas:
-    UserCredentials:
-      type: object
-      required:
-        - email
-        - password
-      properties:
-        email:
-          type: string
-          format: email
-          example: user@example.com
-        password:
-          type: string
-          format: password
-          example: motdepasse123
-
-    AuthToken:
-      type: object
-      properties:
-        token:
-          type: string
-          example: eyJhbGciOiJIUzI1Ni...
-
-    User:
-      type: object
-      properties:
-        _id:
-          type: string
-        email:
-          type: string
-
-    ProjectInput:
-      type: object
-      required:
-        - name
-        - type
-      properties:
-        name:
-          type: string
-          example: Mon super projet
-        type:
-          type: string
-          example: mobile
-
-    Project:
-      allOf:
-        - $ref: "#/components/schemas/ProjectInput"
-        - type: object
-          properties:
-            _id:
-              type: string
-            userId:
-              type: string
-            createdAt:
-              type: string
-              format: date-time
-            updatedAt:
-              type: string
-              format: date-time
-
     BugInput:
       type: object
       required:
@@ -279,10 +335,10 @@ components:
       properties:
         title:
           type: string
-          example: Erreur de login
+          example: "Erreur d'affichage"
         description:
           type: string
-          example: Impossible de se connecter
+          example: "Le bouton ne s'affiche pas en responsive"
         type:
           type: string
           enum: ["log", "error", "warning", "info"]
@@ -309,3 +365,23 @@ components:
             updatedAt:
               type: string
               format: date-time
+
+    Project:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        CountBug:
+          type: integer
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        email:
+          type: string
